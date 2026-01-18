@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ text.title }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="top">
+    <a href="/?lang={{ 'ar' if lang == 'ku' else 'ku' }}">
+        {{ text.switch }}
+    </a>
+</div>
+
+<h1>🍔 {{ text.title }}</h1>
+<h2>{{ text.menu }}</h2>
+
+<form id="orderForm">
+<ul>
+{% for item in menu %}
+    <li class="item">
+        <label>
+            <input type="checkbox"
+                   data-name="{{ item.name }}"
+                   data-price="{{ item.price }}">
+            {{ item.name }} - {{ item.price }} دينار
+        </label>
+    </li>
+{% endfor %}
+</ul>
+
+<p class="total">
+    {{ text.total }}:
+    <span id="total">0</span> دينار
+</p>
+
+<button type="button" onclick="sendWhatsApp()">
+    📱 {{ text.order }}
+</button>
+</form>
+
+<script>
+const checkboxes = document.querySelectorAll("input[type=checkbox]");
+const totalEl = document.getElementById("total");
+
+function updateTotal() {
+    let total = 0;
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            total += parseInt(cb.dataset.price);
+        }
+    });
+    totalEl.textContent = total;
+}
+
+checkboxes.forEach(cb => {
+    cb.addEventListener("change", updateTotal);
+});
+
+function sendWhatsApp() {
+    let items = [];
+    let total = 0;
+
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            items.push(cb.dataset.name);
+            total += parseInt(cb.dataset.price);
+        }
+    });
+
+    if (items.length === 0) {
+        alert("اختر طلبك أولاً");
+        return;
+    }
+
+    let message =
+        "طلب جديد:\n" +
+        items.join("\n") +
+        "\n\nالمجموع: " + total + " دينار";
+
+    let phone = "9647700000000"; // ✏️ غيّر الرقم
+    let url = "https://wa.me/" + phone + "?text=" + encodeURIComponent(message);
+    window.open(url, "_blank");
+}
+</script>
+
+</body>
+</html>
